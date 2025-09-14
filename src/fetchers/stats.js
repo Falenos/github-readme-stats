@@ -66,11 +66,20 @@ const GRAPHQL_STATS_QUERY = `
       followers {
         totalCount
       }
+      # Get discussions from all accessible repositories (including org repos)
       repositoryDiscussions @include(if: $includeDiscussions) {
         totalCount
       }
       repositoryDiscussionComments(onlyAnswers: true) @include(if: $includeDiscussionsAnswers) {
         totalCount
+      }
+      # Try to get more comprehensive review data
+      contributionsCollection {
+        totalPullRequestReviewContributions
+        totalCommitContributions
+        totalIssueContributions
+        totalPullRequestContributions
+        totalRepositoryContributions
       }
       ${GRAPHQL_REPOS_FIELD}
     }
