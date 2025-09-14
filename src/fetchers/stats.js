@@ -48,11 +48,6 @@ const GRAPHQL_STATS_QUERY = `
         totalCommitContributions,
         totalPullRequestReviewContributions
       }
-      # Include private contributions collection for more comprehensive stats
-      privateContributionsCollection: contributionsCollection(includePrivateContributions: true) {
-        totalCommitContributions,
-        totalPullRequestReviewContributions
-      }
       repositoriesContributedTo(first: 1, contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) {
         totalCount
       }
@@ -287,9 +282,7 @@ const fetchStats = async (
   if (include_all_commits) {
     stats.totalCommits = await totalCommitsFetcher(username);
   } else {
-    // Use private contributions if available, otherwise fall back to public
-    stats.totalCommits = user.privateContributionsCollection?.totalCommitContributions || 
-                        user.contributionsCollection.totalCommitContributions;
+    stats.totalCommits = user.contributionsCollection.totalCommitContributions;
   }
 
   stats.totalPRs = user.pullRequests.totalCount;
@@ -298,9 +291,7 @@ const fetchStats = async (
     stats.mergedPRsPercentage =
       (user.mergedPullRequests.totalCount / user.pullRequests.totalCount) * 100;
   }
-  // Use private contributions for reviews if available
   stats.totalReviews =
-    user.privateContributionsCollection?.totalPullRequestReviewContributions ||
     user.contributionsCollection.totalPullRequestReviewContributions;
   stats.totalIssues = user.openIssues.totalCount + user.closedIssues.totalCount;
   if (include_discussions) {
